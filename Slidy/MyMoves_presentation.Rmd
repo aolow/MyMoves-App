@@ -1,0 +1,67 @@
+---
+title: "My Moves"
+subtitle: "Visualizing Activity Tracking Data"
+author: "A.O."
+date: "June 9, 2015"
+output: slidy_presentation
+---
+
+## Concept
+
+Many of current smartphone models have built-in activity trackers. The Moves Application allows for downloading bulk, time-stamped data on a variety of activities, including:
+
+- walking
+- running 
+- and transportation. 
+
+The Shiny application MyMoves allows for browsing of my personal activity data obtained by the Moves app.
+
+## The Outputs
+
+The examined datasets allows for graphing of:
+
+- Distance Traveled [miles]
+- Duration of the Activity [minutes]
+- Calories [kcal]
+- Number of steps (when approporiate)
+
+It allows for defining a specific time-frame for the output as well as simultaneous graphing of the abovementioned measurements.
+
+## Example Output
+
+For example, in the last month I have tried to run more. These attempts can be visualized:
+
+
+```{r, out.width = 650, out.height = 350, echo=FALSE}
+library(reshape2)
+library(ggplot2)
+my_data <- read.csv("/Users/aolow/Box\ Sync/Documents/R/Classes/DevDataProducts/Moves-App/data/summary.csv")[,-1]
+p <- function(act, var, min, max){
+  my_data <- transform(my_data, Duration = Duration / 60)
+  meltdf <- my_data[my_data$Activity==act,]
+  meltdf <- melt(meltdf)
+  meltdf <- meltdf[meltdf$variable %in% var,]
+  meltdf$Date <- as.Date(meltdf$Date)
+  meltdf <- meltdf[(meltdf$Date>=min & meltdf$Date<=max),]
+  
+  ggplot(meltdf, aes(x=Date, y=value, colour = variable, group = variable), environment=environment()) + 
+    geom_line() + 
+    ggtitle(paste(act, "\nfrom", min, "to", max)) +
+    theme_bw() +
+    theme(plot.title = element_text(size=20, face="bold", vjust=2),
+          axis.text.x=element_text(angle=50, size=8, vjust=0.5))
+   # scale_color_discrete(name=act)
+}
+
+p("running", "Distance", "2015-01-01", "2015-06-08")
+```
+
+
+## The End
+
+I hope this app is fun to explore and inspires you to look into tracking your activities as well! 
+
+Thank you :)
+
+
+
